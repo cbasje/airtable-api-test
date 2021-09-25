@@ -1,12 +1,19 @@
 {
   "name": "airtable-api-test",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.ts",
   "license": "MIT",
   "dependencies": {
     "airtable": "^0.11.1",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
-    "nedb": "^1.8.0"
+    "nedb": "^1.8.0",
+    "nedb-promise": "^2.0.1"
+  },
+  "scripts": {
+    "start": "node server.ts"
+  },
+  "devDependencies": {
+    "typescript": "^4.4.3"
   }
 }
