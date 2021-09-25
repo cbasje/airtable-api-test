@@ -8,10 +8,11 @@
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "nedb": "^1.8.0",
-    "nedb-promise": "^2.0.1"
+    "nedb-promise": "^2.0.1",
+    "thenify": "^3.3.1"
   },
   "scripts": {
-    "start": "node server.ts"
+    "start": "node server.js"
   },
   "devDependencies": {
     "typescript": "^4.4.3"

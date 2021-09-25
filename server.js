@@ -5,22 +5,23 @@ require('dotenv').config();
 
 const express = require('express');
 const airtable = require('airtable');
+const thenify = require('thenify');
 
 // setup a new database
-// const Datastore = require('nedb');
+const Datastore = require('nedb');
 // // Security note: the database is saved to the file `datafile` on the local filesystem. It's deliberately placed in the `.data` directory
 // // which doesn't get copied if someone remixes the project.
-// var db = new Datastore({
-// 	filename: '.data/datafile',
-// 	autoload: true,
-// 	timestampData: true,
-// });
-const datastore = require('nedb-promise');
-var db = datastore({
+var db = new Datastore({
 	filename: '.data/datafile',
 	autoload: true,
 	timestampData: true,
 });
+// const datastore = require('nedb-promise');
+// var db = datastore({
+// 	filename: '.data/datafile',
+// 	autoload: true,
+// 	timestampData: true,
+// });
 
 var app = express();
 
@@ -37,14 +38,8 @@ app.get('/items', async (request, response) => {
 			? new Date().getTime() - updateTime
 			: 9999999999;
 
-	// console.log(
-	// 	updateTime,
-	// 	new Date().getTime(),
-	// 	new Date().getTime() - updateTime
-	// );
-
 	if (timeDiff > 60 * 60 * 1000) data = await getFromAirtable();
-	else data = getFromDatabase();
+	else data = await getFromDatabase();
 
 	response.json({ message: 'Hello', data: data });
 });
@@ -64,34 +59,34 @@ const listener = app.listen(process.env.PORT || 3000, () => {
 async function getUpdateTimestamp() {
 	var response = 0;
 
-	await db.findOne({}, (err, data) => {
-		console.log(
-			data != null ? new Date(data.updatedAt).getTime() : 'Nothing'
-		);
-
-		if (data == null) response = 0;
-		else response = data.updatedAt;
+	await new Promise((resolve, reject) => {
+		console.log('timestamp');
+		db.findOne({}, (err, data) => {
+			if (err) reject(err);
+			else if (data == null) resolve();
+			else {
+				response = data.updatedAt;
+				resolve();
+			}
+		});
 	});
 
 	return response;
 }
 
-// function setUpdateTimestamp(timestamp) {
-// 	// console.log(timestamp);
-
-// 	db.insert({ timestamp: timestamp });
-// }
-
-function getFromDatabase() {
+async function getFromDatabase() {
 	console.log('From DB');
 
 	var response = [];
 
-	db.find({}, (err, data) => {
-		if (err) {
-			return;
-		}
-		response = data;
+	await new Promise((resolve, reject) => {
+		db.find({}, (err, data) => {
+			if (err) reject(err);
+			else {
+				response = data;
+				resolve();
+			}
+		});
 	});
 
 	return response;
@@ -128,14 +123,9 @@ async function getFromAirtable() {
 }
 
 function saveToDatabase(items) {
-	console.log('Save to DB');
-
 	items.forEach((item) => {
-		db.insert(item);
-		console.log(`Save ${item.get('Name')}`);
+		db.insert(item['_rawJson']);
 	});
-
-	// setUpdateTimestamp(new Date().getTime());
 }
 
 function resetDatabase() {
