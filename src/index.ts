@@ -1,6 +1,6 @@
 import express, { Request, Response, Application } from 'express';
 import { Server } from 'http';
-import airtable, { FieldSet, Record } from 'airtable';
+import airtable, { Record } from 'airtable';
 import { Velden } from './model';
 
 import dotenv from 'dotenv';
