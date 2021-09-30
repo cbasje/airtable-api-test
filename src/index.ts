@@ -41,6 +41,7 @@ app.get('/items', async (req: Request, res: Response) => {
 app.post('/reset', (req: Request, res: Response) => {
 	resetDatabase();
 	res.status(200).end();
+	console.log('reset');
 });
 
 const listener: Server = app.listen(process.env.PORT || 3000, () => {
