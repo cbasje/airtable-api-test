@@ -30,10 +30,8 @@ app.get('/items', async (req: Request, res: Response) => {
 			? new Date().getTime() - updateTime
 			: 9999999999;
 
-	if (timeDiff > 60 * 60 * 1000) {
-		resetDatabase();
-		data = await getFromAirtable();
-	} else data = await getFromDatabase();
+	if (timeDiff > 60 * 60 * 1000) data = await getFromAirtable();
+	else data = await getFromDatabase();
 
 	res.json({ message: 'Successfully loaded', data: data });
 });
@@ -87,12 +85,13 @@ async function getFromDatabase(): Promise<Record<Velden>[]> {
 async function getFromAirtable(): Promise<Record<Velden>[]> {
 	console.log('From Airtable');
 
+	resetDatabase();
+
 	var responseData: Record<Velden>[] = [];
 
 	var base = new airtable({ apiKey: process.env.AIRTABLE_API }).base(
 		'appr81RLyTfwdxIUX'
 	);
-
 	await base<Velden>('Guestbook')
 		.select({
 			view: 'Grid view',
