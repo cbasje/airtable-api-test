@@ -35,7 +35,7 @@ app.get('/items', async (req: Request, res: Response) => {
 		data = await getFromAirtable();
 	} else data = await getFromDatabase();
 
-	res.json({ message: 'Hello', data: data });
+	res.json({ message: 'Successfully loaded', data: data });
 });
 
 app.post('/reset', (req: Request, res: Response) => {
@@ -98,18 +98,13 @@ async function getFromAirtable(): Promise<Record<Velden>[]> {
 			view: 'Grid view',
 		})
 		.eachPage((records, fetchNextPage) => {
-			// This function (`page`) will get called for each page of records.
-
 			records.forEach((record) => {
 				// console.log('Retrieved', record.get('Name'));
 
-				responseData.push(record);
+				responseData.push(record._rawJson);
 				saveToDatabase(record);
 			});
 
-			// To fetch the next page of records, call `fetchNextPage`.
-			// If there are more records, `page` will get called again.
-			// If there are no more records, `done` will get called.
 			fetchNextPage();
 		});
 
@@ -117,7 +112,7 @@ async function getFromAirtable(): Promise<Record<Velden>[]> {
 }
 
 function saveToDatabase(item: Record<Velden>) {
-	db.insert(item['_rawJson']);
+	db.insert(item._rawJson);
 }
 // function saveToDatabase(items: Record<Velden>[]) {
 // 	items.forEach((item) => {
